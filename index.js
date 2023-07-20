@@ -28,7 +28,8 @@ async function run() {
 
     app.get("/tools", async(req, res)=>{
       const query = {};
-      const result = await toolsCollection.find(query).toArray()
+      const result = await toolsCollection.find(query).toArray();
+      console.log(result)
       res.send(result)
     })
 
