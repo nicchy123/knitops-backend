@@ -48,20 +48,12 @@ async function run() {
 
     app.put("/upgrade/:id", async (req, res) => {
       const id = req.params.id;
-      const {tool,desiredVersion} = req.body;
-      const filter = {id: id}
-      const query = {tech:{name:tool}}
-      const userDetails = await usersCollection.findOne(filter);
-      const tech = userDetails.tech.find(item=>item.name === tool);
-      console.log(tech)
-      const updateDoc = {
-          $set: {
-            name: tool,
-            version: desiredVersion,
-          }
-      }
-      // const result = await usersCollection.updateOne(filter, updateDoc);
-      // res.send(result)
+      const { tool, desiredVersion } = req.body;
+      const result = await usersCollection.updateOne(
+        { id: id, "tech.name": tool },
+        { $set: { "tech.$.version": desiredVersion } }
+      );
+      res.send(result);
     });
 
     app.get("/user/:id", async (req, res) => {
