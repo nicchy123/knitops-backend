@@ -19,16 +19,23 @@ async function run() {
   try {
     client.connect();
     const toolsCollection = client.db("knitOps").collection("tools");
-   
+    const usersCollection = client.db("knitOps").collection("users");
+
     // root page
-   
+
     app.get("/", async (req, res) => {
-        res.send("server running");
-      });
+      res.send("server running");
+    });
 
     app.get("/tools", async (req, res) => {
       const query = {};
       const result = await toolsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.post("/users", async (req, res) => {
+      const body = req.body;
+      const result = usersCollection.insertOne(body);
       res.send(result);
     });
 
@@ -39,7 +46,30 @@ async function run() {
       res.send(result);
     });
 
- 
+    app.put("/upgrade/:id", async (req, res) => {
+      const id = req.params.id;
+      const {tool,desiredVersion} = req.body;
+      const filter = {id: id}
+      const query = {tech:{name:tool}}
+      const userDetails = await usersCollection.findOne(filter);
+      const tech = userDetails.tech.find(item=>item.name === tool);
+      console.log(tech)
+      const updateDoc = {
+          $set: {
+            name: tool,
+            version: desiredVersion,
+          }
+      }
+      // const result = await usersCollection.updateOne(filter, updateDoc);
+      // res.send(result)
+    });
+
+    app.get("/user/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { id: id };
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    });
   } finally {
   }
 }
